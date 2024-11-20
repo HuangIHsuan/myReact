@@ -12,9 +12,10 @@ function TodoWrapper() {
     // ]);
 
     // 因為要判定todo是否被點擊，所以要增加一個標記屬性=>isCompleted
+    // 新增陣列屬性isEdit => 判別是否編輯中
     const [todos, setTodos] = useState([
-        { content: '買午餐', id: Math.random(), isCompleted: false },
-        { content: '買飲料', id: Math.random(), isCompleted: false },
+        { content: '買午餐', id: Math.random(), isCompleted: false, isEdit: false },
+        { content: '買飲料', id: Math.random(), isCompleted: false, isEdit: false },
     ]);
 
     // 建立加入新的todo內容
@@ -23,7 +24,7 @@ function TodoWrapper() {
     const addTodo = (content) => {
         // 當屬性質 = 屬性名稱時，可省略屬性名稱
         // content: content => content
-        setTodos([...todos, { content, id: Math.random(), isCompleted: false }])
+        setTodos([...todos, { content, id: Math.random(), isCompleted: false, isEdit: false }])
     }
 
     // 建立刪除todo函式，傳給Todo元件使用
@@ -38,12 +39,40 @@ function TodoWrapper() {
 
     // 建立雙向(toggle)切換「完成與取消」的函式
     const toggleCompleted = (id) => {
-        setTodos(todos.map((todo)=>{
+        setTodos(todos.map((todo) => {
             // 檢查被點擊的id是否跟目前陣列中的id一樣
             // yes => 1. 取出todo 2. ! => 將isCompleted屬性值反向處理(true -> false / false -> true)
             // no => todo不變
             return todo.id === id
-            ? {...todo, isCompleted: !todo.isCompleted}
+                ? { ...todo, isCompleted: !todo.isCompleted }
+                : todo
+        }))
+    }
+
+    // 建立是否修改中的函式(雙向)
+    const toggleEdit = (id) => {
+        setTodos(todos.map((todo) => {
+            // 三元運算子的寫法
+            return todo.id === id
+                ? { ...todo, isEdit: !todo.isEdit }
+                : todo
+
+            // if-else寫法
+            // if (todo.id === id) {
+            //     return { ...todo, isEdit: !todo.isEdit }
+            // } else {
+            //     return todo
+            // }
+        }))
+    }
+
+    // 建立完成修改的函式(按下完成按鈕的動作)
+    // 1. 異動content為新的內容
+    // 2. isEdit 改回 false
+    const editTodo = (id, newContent) => {
+        setTodos(todos.map((todo)=>{
+            return todo.id === id
+            ? {...todo, content: newContent, isEdit: false}
             : todo
         }))
     }
@@ -56,7 +85,9 @@ function TodoWrapper() {
                 todos.map((todo) => {
                     return <Todo todo={todo} key={todo.id}
                         deleteTodo={deleteTodo}
-                        toggleCompleted = {toggleCompleted}
+                        toggleCompleted={toggleCompleted}
+                        toggleEdit = {toggleEdit}
+                        editTodo = {editTodo}
                     />
                 })
             }
